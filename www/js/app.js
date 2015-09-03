@@ -25,6 +25,10 @@ angular.module('starter', [
   });
 }])
 
+.config(['$httpProvider', function($httpProvider) {
+  $httpProvider.defaults.withCredentials = false;
+}])
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard

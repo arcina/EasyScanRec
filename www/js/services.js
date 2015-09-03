@@ -2,7 +2,6 @@ angular.module('starter.services', [])
 
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
-
   // Some fake testing data
   var chats = [{
     id: 0,
@@ -24,11 +23,6 @@ angular.module('starter.services', [])
     name: 'Perry Governor',
     lastText: 'Look at my mukluks!',
     face: 'https://pbs.twimg.com/profile_images/598205061232103424/3j5HUXMY.png'
-  }, {
-    id: 4,
-    name: 'Mike Harrington',
-    lastText: 'This is wicked good ice cream.',
-    face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
   }];
 
   return {
@@ -46,5 +40,35 @@ angular.module('starter.services', [])
       }
       return null;
     }
+  };
+})
+.factory('Scan', function($http,$log){
+
+  $log.debug('Before');
+  return {
+    process: function(ImageForm){
+      $log.debug('BeforeAfter:' + ImageForm.UploadedImage);
+      $http(
+         {
+             method: 'POST',
+             url: 'http://ocrservices.azurewebsites.net/api/Images/Upload',
+             data: ImageForm,
+             headers: {
+               'Content-Type': undefined
+             }
+         }
+       ).
+         then(function(response) {
+           $log.debug('After');
+           return response.data;
+           // this callback will be called asynchronously
+           // when the response is available
+         }, function(response) {
+           $log.debug('After1');
+
+           // called asynchronously if an error occurs
+           // or server returns response with an error status.
+         });
+      }
   };
 });

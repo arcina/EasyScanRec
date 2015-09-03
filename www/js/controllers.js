@@ -17,7 +17,24 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('CameraCtrl', function($scope, $cordovaCamera) {
+.controller('CameraCtrl', function($scope, $cordovaCamera, Scan) {
+
+
+   function dataURItoBlob(dataURI) {
+   // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString = atob(dataURI.split(',')[1]);
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++)
+    {
+       ia[i] = byteString.charCodeAt(i);
+    }
+
+    var bb = new Blob([ab], { "type": mimeString });
+    return bb;
+   };
 
 
   $scope.takePicture = function() {
@@ -25,7 +42,8 @@ angular.module('starter.controllers', [])
       quality : 75,
       destinationType : Camera.DestinationType.DATA_URL,
       sourceType : Camera.PictureSourceType.CAMERA,
-      allowEdit : true,
+      //sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+      allowEdit : false,
       encodingType: Camera.EncodingType.JPEG,
       targetWidth: 300,
       targetHeight: 300,
@@ -33,13 +51,31 @@ angular.module('starter.controllers', [])
       saveToPhotoAlbum: false
     };
 
-    $cordovaCamera.getPicture(options).then(function(imageData) {
-      $scope.imgURI = "data:image/jpeg;base64," + imageData;
-    }, function(err) {
-      // An error occured. Show a message to the user
-    });
-  }
-})
+   $cordovaCamera.getPicture(options).then(function(imageData) {
+        var fd = new FormData();
+
+        $scope.imgURI = "data:image/jpeg;base64," + imageData;
+
+        fd.append('UploadedImage', dataURItoBlob("data:image/jpeg;base64,"+imageData));
+        $scope.form = fd;
+        //Load image into the scope
+
+        alert('Form:' + fd.data);
+
+        //$log.debug('image64:' + imageData);
+        alert(Scan.process(fd));
+        //$scope.imageURLp = Scan.process(fd);
+        //Load Imaged
+
+
+         //
+
+              }, function(err) {
+                  $scope.result='error-outside';
+                 }
+       );
+     }
+   })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
   $scope.chat = Chats.get($stateParams.chatId);
